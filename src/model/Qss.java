@@ -27,8 +27,10 @@ public class Qss extends AtomicComponent{
 		current_state = 0;
 	}
 
-	public void delta_int(){  // le cas d'un échantillon a dérivée constante 
+	public void delta_int(){  // le cas d'un échantillon a dérivée constante
+		double sigmadebut = sigma;
 		if(current_state == 0){
+			
 			// Partie modifiée : début
 			x		= xl + Math.signum(dx)*d;   // q 					= q_l + sign(dq)*delta_q
 			xl		= x ;						// q_l 					= q 
@@ -39,9 +41,11 @@ public class Qss extends AtomicComponent{
 			next_state = 0;
 		}
 		current_state = next_state;
+		System.out.println("delta_int ("+sigmadebut+" => " + sigma + ")");
 	}
 
-	public void delta_ext(ArrayList<String> inputs){ // le cas d'un échantillon a dérivée qui varie 
+	public void delta_ext(ArrayList<String> inputs){ // le cas d'un échantillon a dérivée qui varie
+		double sigmadebut = sigma;
 		if(current_state == 0 && inputs.contains("adder_s0")){
 			dx = real_inputnames_input.get("adder_s0");
 			// Partie modifiée : début
@@ -53,10 +57,11 @@ public class Qss extends AtomicComponent{
 			next_state = 0;
 		}
 		current_state = next_state;
+		System.out.println("delta_ext ("+sigmadebut+" => " + sigma + ")");
 	}
 	
 	public void delta_con(ArrayList<String> inputs){
-		/*
+		double sigmadebut = sigma;
 		if(current_state == 0 && inputs.contains("adder_s0")){
 			dx = real_inputnames_input.get("adder_s0");
 			
@@ -67,8 +72,9 @@ public class Qss extends AtomicComponent{
 			real_varnames_var.put("qx", x);
 			next_state = 0;
 		}
-		*/
+		
 		current_state = next_state;
+		System.out.println("delta_con ("+sigmadebut+" => " + sigma + ")");
 	}
 
 	public ArrayList<String> lambda(){

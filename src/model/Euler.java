@@ -62,7 +62,9 @@ public class Euler extends AtomicComponent{
 
 	public double getTa(){
 
-		if(current_state == 0){
+		if(current_state == 0)
+		{
+			System.out.println("hstep("+hstep+")");
 			return hstep;
 		}
 		return 0;
