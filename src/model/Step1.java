@@ -16,12 +16,12 @@ public class Step1 extends AtomicComponent{
 	}
 	
 	public void init() {
-		sigma 			= 0;
-		xi 				= 1;
-		xf 				= -3;
-		ts 				= 0.65;
-		x 				= 0;
-		current_state 	= 0;
+		sigma = 0;
+		xi = 1;
+		xf = -3;
+		ts = 0.65;
+		x = 0;
+		current_state = 0;
 	}
 
 	public void delta_int(){

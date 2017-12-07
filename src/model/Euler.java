@@ -3,9 +3,9 @@ import java.util.ArrayList;
 
 public class Euler extends AtomicComponent{
 	
-	private double x; /* abscisse */
-	private double dx; /* dérivée abscisse */
-	private double hstep; 
+	private double x;
+	private double dx;
+	private double hstep;
 	
 	
 	public Euler(String name){
@@ -62,9 +62,7 @@ public class Euler extends AtomicComponent{
 
 	public double getTa(){
 
-		if(current_state == 0)
-		{
-			System.out.println("hstep("+hstep+")");
+		if(current_state == 0){
 			return hstep;
 		}
 		return 0;

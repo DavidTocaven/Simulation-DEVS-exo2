@@ -1,16 +1,9 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import chart.Chart;
-import chart.ChartFrame;
-import model.Adder;
-import model.AtomicComponent;
-import model.Euler;
-import model.Qss;
-import model.Step1;
-import model.Step2;
-import model.Step3;
-import model.Step4;
+import chart.*;
+import model.*;
+
 
 
 
@@ -23,26 +16,33 @@ public class Main {
 		//Pour l'affichage des charts, deux composants ne peuvent pas avoir le mÃªme nom de variable
 		
 		
-		ArrayList<AtomicComponent> components = new ArrayList<>();
+		ArrayList<AtomicComponent> atomicArray = new ArrayList<>();
 		
 		//******Instantiation des composants atomiques ****** INSERER ICI VOS COMPOSANTS
 		
-		Step1 step1 = new Step1("step1");
-		Step2 step2 = new Step2("step2");
-		Step3 step3 = new Step3("step3");
-		Step4 step4 = new Step4("step4");
-		Adder adder = new Adder("adder");
-		Euler euler = new Euler("euler");
-		Qss   qss   = new Qss("qss");
+//		Step1 step1 = new Step1("step1");
+//		Step2 step2 = new Step2("step2");
+//		Step3 step3 = new Step3("step3");
+//		Step4 step4 = new Step4("step4");
+//		Adder adder = new Adder("adder");
+//		Euler euler = new Euler("euler");
+// 		Qss qss = new Qss("qss");  // TODO
+		Buf  buf  = new Buf("Buf");
+		Gen  gen  = new Gen("Gen");
+		Proc proc = new Proc("Proc");
+		//components.add(step1);
+		//components.add(step2);
+		//components.add(step3);
+		//components.add(step4);
+		//components.add(adder);
+		//components.add(euler);
 		
-		components.add(step1);
-		components.add(step2);
-		components.add(step3);
-		components.add(step4);
-		components.add(adder);
-		components.add(euler);
-		components.add(qss);
-
+		//components.add(qss); // TODO
+		atomicArray.add(buf);
+		atomicArray.add(gen);
+		atomicArray.add(proc);
+		
+		
 		// CrÃ©ation du Frame Chart   METTRE UN TITRE
 		ChartFrame chart = new ChartFrame("","test de l'Integrateur");	
 
@@ -51,9 +51,9 @@ public class Main {
 		
 		//******Initialisation des composants atomiques ****** NE PAS MODIFIER
 		
-		for(int i = 0; i < components.size() ; i++){
-			components.get(i).init();
-			components.get(i).setTr(components.get(i).getTa());
+		for(int i = 0; i < atomicArray.size() ; i++){
+			atomicArray.get(i).init();
+			atomicArray.get(i).setTr(atomicArray.get(i).getTa());
 		}
 
 		//**************************************************
@@ -65,7 +65,7 @@ public class Main {
 		HashMap<String, AtomicComponent> vars_atom = new HashMap<>();
 		ArrayList<String> integer_variables = new ArrayList<>();
 		ArrayList<String> real_variables = new ArrayList<>();
-		for(AtomicComponent a : components){
+		for(AtomicComponent a : atomicArray){
 			for(String s : a.getIntegerVariables()){
 				integer_variables.add(s);
 				vars_atom.put(s, a);
@@ -93,22 +93,36 @@ public class Main {
 		
 		//**************************************************
 		
-		double t = 0;
+		double currentTime = 0; // t 
 		double tn = 0;
-		double tfin = 2;
+		double tfin = 10;
+		
 		//BOUCLE DE SIMULATION
-		while(t < tfin){
+		while(currentTime < tfin)
+		{
 
 			System.out.println("****************");
-			System.out.println("t=" + t);
-			ArrayList<AtomicComponent> imminentComponent = new ArrayList<AtomicComponent>();
-			 HashMap<String, Integer> outputs = new  HashMap<String, Integer>();
+			System.out.println("currentTime=" + currentTime);
+			
+			//Envoie des donnÃ©es aux charts ******NE PAS MODIFIER********
+			for(String var : integer_variables)
+				vars_chart.get(var).addDataToSeries(currentTime, vars_atom.get(var).getIntegerValue(var));
+			
+			for(String var : real_variables)
+				vars_chart.get(var).addDataToSeries(currentTime, vars_atom.get(var).getRealValue(var));
 
+			// *********************************************************************************
+			// Provient de l'exo 1
+			System.out.println("\n   Current time = "+ currentTime);
+			ArrayList<AtomicComponent> imminentComponent = new ArrayList<AtomicComponent>();
+			ArrayList<String> outputs = new ArrayList<String>();
 			double tmin = Double.POSITIVE_INFINITY;		// tmin a l'infini
+			
+			
+			
 			/*  Parcours de Tous Les eléments*/
-			for(AtomicComponent elem : components) 
-			{	// Pour tous les éléments dela simulation
-				
+			for(AtomicComponent elem : atomicArray) {	// Pour tous les éléments dela simulation
+				System.out.println(elem.getName() + ": Tr= " + elem.getTr());
 				if(elem.getTr()<tmin)// Si le Ta de l'élément est inférieur a tmin, 
 				{
 						tmin = elem.getTr()	;							// Alors je met a jour tmin, et je regarde 
@@ -117,46 +131,40 @@ public class Main {
 						
 							
 				}
-				else if(elem.getTa()==tmin) 
+				else if(elem.getTr()==tmin)// TODO Ta 
 				{
 					imminentComponent.add(elem);
 				}
 				
 			}
-// import 
+			System.out.println("tmin("+tmin+")");
+			System.out.println("Liste des éléments imminents : ");
 			/* Exécution sortie des éléments imminents  */
+			System.out.println("Nb component imminent = "+imminentComponent.size());
 			for(AtomicComponent i : imminentComponent) 
 			{
 				System.out.println("\t"+i.getName() + ": lambda(S) : "+ i.lambda());
-				for(String i_lambda : i.lambda() )
-				{
-				outputs.put( i_lambda,
-							 i.readIntegerOutputValue( i_lambda ) 
-							) ;
-				}
-			}	
+				outputs.addAll(i.lambda());
+			}
 			
 			/* Boucle pour delta --> TRANSITIONS */
-			for(AtomicComponent b : components) 		
+			for(AtomicComponent b : atomicArray) 		
 			{
 				String text = "début:"+b;
 				
-				ArrayList<String>  c = new  ArrayList<String>(b.getInputs()); // copies des entrées de b dans c
-				c.retainAll( outputs.keySet() ); // garde dans c que les elements présent dans outputs
-				
+				ArrayList<String> c = new ArrayList<String>(b.getInputs()); // copies des entrées de b dans c
+				c.retainAll(outputs); // garde dans c que les elements présent dans outputs
 				boolean asEvolute = false;
-				b.setE(tmin);
 				if(imminentComponent.contains(b))/*imminent*/
 				{
-					
 					if( c.isEmpty()) /*si vide : pas d'entrées*/  /*pas d'entrée*/
 					{
-						b.delta_int();
+						b.delta_int();	
 						asEvolute=true;
 					}
 					else /* entrée*/
 					{
-						b.delta_con(outputs.keySet());
+						b.delta_con(outputs);
 						asEvolute=true;
 					}
 				
@@ -172,7 +180,6 @@ public class Main {
 						}
 						// mise a jour du tr de tout les élements
 					}
-				b.setTl(tmin);
 				 if (asEvolute)
 				 {
 					 b.setTr(b.getTa());						 
@@ -181,20 +188,13 @@ public class Main {
 				 {
 						b.setTr(b.getTr()-tmin); 
 				 }
-			}
-			
-			t = t+tmin;
- // fin import
-			
-			
-			//Envoie des donnÃ©es aux charts ******NE PAS MODIFIER********
-			for(String var : integer_variables)
-				vars_chart.get(var).addDataToSeries(t, vars_atom.get(var).getIntegerValue(var));
-			
-			for(String var : real_variables)
-				vars_chart.get(var).addDataToSeries(t, vars_atom.get(var).getRealValue(var));
 
-			
+				System.out.println(text+"\t fin:"+b);
+	
+			}
+			currentTime += tmin;
+			// fin depuis l'exo 1
+			// *********************************************************************************
 		}
 	}
 	
